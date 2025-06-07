@@ -131,9 +131,8 @@ return models.ScreenChangeMsg{
 NewScreen: models.Welcome,
 Data:      m.directory,
 }
-} else {
-return tea.Quit()
 }
+return tea.Quit()
 }
 }
 

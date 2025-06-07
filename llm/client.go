@@ -195,14 +195,14 @@ return "", fmt.Errorf("no content in response")
 return anthropicResp.Content[0].Text, nil
 }
 
-func (c *Client) chatGemini(messages []Message) (string, error) {
+func (c *Client) chatGemini(_ []Message) (string, error) {
 // Placeholder for Gemini implementation
-return "", fmt.Errorf("Gemini integration coming soon! Please use OpenAI or Anthropic for now.")
+return "", fmt.Errorf("gemini integration coming soon! Please use OpenAI or Anthropic for now")
 }
 
-func (c *Client) chatCohere(messages []Message) (string, error) {
+func (c *Client) chatCohere(_ []Message) (string, error) {
 // Placeholder for Cohere implementation
-return "", fmt.Errorf("Cohere integration coming soon! Please use OpenAI or Anthropic for now.")
+return "", fmt.Errorf("cohere integration coming soon! Please use OpenAI or Anthropic for now")
 }
 
 // Helper function to create a coding assistant system prompt

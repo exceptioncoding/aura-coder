@@ -64,7 +64,7 @@ func TestClient_ChatOpenAI_Success(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 	}))
 	defer server.Close()
 
@@ -120,7 +120,7 @@ func TestClient_ChatAnthropic_Success(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 	}))
 	defer server.Close()
 
@@ -143,9 +143,9 @@ func TestClient_ChatAnthropic_Success(t *testing.T) {
 
 func TestClient_ChatOpenAI_APIError(t *testing.T) {
 	// Create mock server that returns an error
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte(`{"error": {"message": "Invalid API key"}}`))
+		_, _ = w.Write([]byte(`{"error": {"message": "Invalid API key"}}`))
 	}))
 	defer server.Close()
 
@@ -202,7 +202,7 @@ func TestClient_ChatOpenAI_EmptyResponse(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 	}))
 	defer server.Close()
 

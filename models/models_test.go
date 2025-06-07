@@ -266,7 +266,7 @@ assert.Equal(t, tt.wantMsg, msg)
 }
 
 func TestConfirmationMsg(t *testing.T) {
-testCallback := func(confirmed bool) tea.Cmd {
+testCallback := func(_ bool) tea.Cmd {
 return func() tea.Msg {
 return StatusMsg{Message: "callback executed"}
 }

@@ -108,7 +108,7 @@ os.Setenv("HOME", tempDir)
 // Change to temp directory
 originalWd, err := os.Getwd()
 require.NoError(t, err)
-defer func() { os.Chdir(originalWd) }()
+defer func() { _ = os.Chdir(originalWd) }()
 
 workDir := filepath.Join(tempDir, "project")
 err = os.MkdirAll(workDir, 0755)
@@ -201,6 +201,6 @@ b.ResetTimer()
 for i := 0; i < b.N; i++ {
 // Use different directory for each iteration
 testDir := fmt.Sprintf("/bench/dir/%d", i)
-app.AddTrustedDir(testDir)
+_ = app.AddTrustedDir(testDir)
 }
 }

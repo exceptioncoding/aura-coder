@@ -38,7 +38,7 @@ func (m RootModel) handleScreenChange(msg models.ScreenChangeMsg) (RootModel, te
 switch msg.NewScreen {
 case models.Welcome:
 if data, ok := msg.Data.(string); ok {
-m.app.AddTrustedDir(data)
+_ = m.app.AddTrustedDir(data)
 m.currentModel = ui.NewWelcomeModel(data)
 }
 

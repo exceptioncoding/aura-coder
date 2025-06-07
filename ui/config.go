@@ -262,7 +262,7 @@ return m, nil
 }
 
 m.showSuccess = true
-return m, tea.Tick(time.Second*2, func(t time.Time) tea.Msg {
+return m, tea.Tick(time.Second*2, func(_ time.Time) tea.Msg {
 return models.ScreenChangeMsg{
 NewScreen: models.Welcome,
 Data:      m.currentDir,

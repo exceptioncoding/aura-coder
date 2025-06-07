@@ -329,7 +329,7 @@ os.Setenv("HOME", tempDir)
 // Change to temp directory
 originalWd, err := os.Getwd()
 require.NoError(t, err)
-t.Cleanup(func() { os.Chdir(originalWd) })
+t.Cleanup(func() { _ = os.Chdir(originalWd) })
 
 err = os.Chdir(tempDir)
 require.NoError(t, err)
@@ -366,8 +366,8 @@ defer func() { os.Setenv("HOME", oldHome) }()
 os.Setenv("HOME", tempDir)
 
 originalWd, _ := os.Getwd()
-defer os.Chdir(originalWd)
-os.Chdir(tempDir)
+defer func() { _ = os.Chdir(originalWd) }()
+_ = os.Chdir(tempDir)
 
 // Create test config
 cfg := &config.Config{

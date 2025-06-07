@@ -71,9 +71,8 @@ fmt.Printf("Total: %d tests, %d passed, %d failed\n", totalTests, totalPassed, t
 if totalFailed > 0 {
 fmt.Printf("\n❌ Some tests failed. See output above for details.\n")
 os.Exit(1)
-} else {
-fmt.Printf("\n✅ All tests passed! 🎉\n")
 }
+fmt.Printf("\n✅ All tests passed! 🎉\n")
 }
 
 type TestResult struct {
