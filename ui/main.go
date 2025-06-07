@@ -61,13 +61,6 @@ var (
 			Foreground(lipgloss.Color("#4ECDC4")).
 			Bold(true)
 
-	helpBoxStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#A8E6CF")).
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#A8E6CF")).
-			Padding(1, 2).
-			MarginTop(1).
-			MarginBottom(1)
 
 	thinkingFrames = []string{"🤔", "💭", "🧠", "⚡", "💡"}
 	loadingFrames  = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}

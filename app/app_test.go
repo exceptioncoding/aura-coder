@@ -26,12 +26,6 @@ func createTestConfig(t *testing.T, apiKey, provider string) *config.Config {
 	}
 }
 
-// Test helper to setup temporary directory
-func setupTempDir(t *testing.T) string {
-	t.Helper()
-	tempDir := t.TempDir()
-	return tempDir
-}
 
 func TestApp_GetConfig(t *testing.T) {
 	cfg := createTestConfig(t, "test-key", "anthropic")

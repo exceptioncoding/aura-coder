@@ -238,13 +238,13 @@ func TestClient_Chat_Integration_WithMocking(t *testing.T) {
 		{
 			name:          "gemini not implemented",
 			provider:      "gemini",
-			expectedError: "Gemini integration coming soon",
+			expectedError: "gemini integration coming soon",
 			shouldSucceed: false,
 		},
 		{
 			name:          "cohere not implemented",
 			provider:      "cohere",
-			expectedError: "Cohere integration coming soon",
+			expectedError: "cohere integration coming soon",
 			shouldSucceed: false,
 		},
 	}

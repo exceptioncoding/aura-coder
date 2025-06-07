@@ -39,10 +39,6 @@ var (
 			MarginTop(1).
 			MarginBottom(1)
 
-	choiceStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#98FB98")).
-			Bold(true).
-			MarginLeft(2)
 
 	selectedChoiceStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#000000")).
