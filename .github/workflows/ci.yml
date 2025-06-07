@@ -9,7 +9,7 @@ on:
 
 env:
   GO_VERSION: '1.21'
-  GOLANGCI_LINT_VERSION: 'v1.54'
+  GOLANGCI_LINT_VERSION: 'v1.62.2'
 
 jobs:
   # ==================================================
@@ -30,7 +30,7 @@ jobs:
         go-version: ${{ env.GO_VERSION }}
 
     - name: 📦 Cache Go Modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/go-build
@@ -49,7 +49,7 @@ jobs:
         args: --timeout=10m --config=.golangci.yml
 
     - name: 🔒 Run gosec Security Scanner
-      uses: securecodewarrior/github-action-gosec@master
+      uses: securego/gosec@v2.21.4
       with:
         args: '-fmt sarif -out gosec-results.sarif ./...'
       continue-on-error: true
@@ -101,7 +101,7 @@ jobs:
         go-version: ${{ matrix.go-version }}
 
     - name: 📦 Cache Go Modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/go-build
@@ -153,7 +153,7 @@ jobs:
 
     - name: 📦 Upload Coverage Artifacts
       if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.21'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report
         path: |
@@ -178,7 +178,7 @@ jobs:
         go-version: ${{ env.GO_VERSION }}
 
     - name: 📦 Cache Go Modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/go-build
@@ -222,7 +222,7 @@ jobs:
         go-version: ${{ env.GO_VERSION }}
 
     - name: 📦 Cache Go Modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/go-build
@@ -257,7 +257,7 @@ jobs:
         fi
 
     - name: 📦 Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: aura-${{ matrix.goos }}-${{ matrix.goarch }}
         path: dist/aura-${{ matrix.goos }}-${{ matrix.goarch }}.*
@@ -328,7 +328,7 @@ jobs:
         echo "Generated version: $VERSION"
 
     - name: 📥 Download All Artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: artifacts
 
