@@ -26,7 +26,6 @@ func createTestConfig(t *testing.T, apiKey, provider string) *config.Config {
 	}
 }
 
-
 func TestApp_GetConfig(t *testing.T) {
 	cfg := createTestConfig(t, "test-key", "anthropic")
 	app := &App{

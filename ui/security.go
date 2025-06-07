@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbletea"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
 	"aura/models"
@@ -38,7 +38,6 @@ var (
 			Padding(1, 2).
 			MarginTop(1).
 			MarginBottom(1)
-
 
 	selectedChoiceStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#000000")).
