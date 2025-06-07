@@ -55,7 +55,7 @@ jobs:
       continue-on-error: true
 
     - name: 📊 Upload Security Scan Results
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: gosec-results.sarif
@@ -193,7 +193,7 @@ jobs:
     - name: 🎯 Run Complete Test Suite
       run: |
         echo "🎯 Running Comprehensive Test Suite..."
-        go run test_runner.go
+        go run scripts/test_runner.go
 
   # ==================================================
   # 🏗️ Build & Release Artifacts
