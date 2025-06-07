@@ -264,7 +264,7 @@ func TestAura_ErrorHandling(t *testing.T) {
 		// Create corrupted config file
 		configPath := filepath.Join(tempDir, ".aura.conf")
 		corruptedConfig := "invalid: yaml: content: ["
-		err := os.WriteFile(configPath, []byte(corruptedConfig), 0644)
+		err := os.WriteFile(configPath, []byte(corruptedConfig), 0600)
 		require.NoError(t, err)
 
 		// Loading should fail gracefully or return default config
