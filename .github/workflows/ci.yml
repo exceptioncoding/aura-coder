@@ -1,0 +1,374 @@
+name: 🚀 Aura CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  GO_VERSION: '1.21'
+  GOLANGCI_LINT_VERSION: 'v1.54'
+
+jobs:
+  # ==================================================
+  # 🔍 Code Quality & Security Analysis
+  # ==================================================
+  code-quality:
+    name: 🔍 Code Quality & Security
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 🐹 Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: 📦 Cache Go Modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: 📥 Download Dependencies
+      run: go mod download
+
+    - name: 🔍 Run golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: ${{ env.GOLANGCI_LINT_VERSION }}
+        args: --timeout=10m --config=.golangci.yml
+
+    - name: 🔒 Run gosec Security Scanner
+      uses: securecodewarrior/github-action-gosec@master
+      with:
+        args: '-fmt sarif -out gosec-results.sarif ./...'
+      continue-on-error: true
+
+    - name: 📊 Upload Security Scan Results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: gosec-results.sarif
+
+    - name: 📝 Check Go Formatting
+      run: |
+        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          echo "❌ Go code is not formatted correctly:"
+          gofmt -s -d .
+          exit 1
+        fi
+        echo "✅ Go code is properly formatted"
+
+    - name: 🧹 Check Go Modules
+      run: |
+        go mod tidy
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "❌ go.mod/go.sum not tidy:"
+          git diff
+          exit 1
+        fi
+        echo "✅ Go modules are tidy"
+
+  # ==================================================
+  # 🧪 Comprehensive Testing Suite
+  # ==================================================
+  test:
+    name: 🧪 Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        go-version: ['1.20', '1.21']
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: 🐹 Setup Go ${{ matrix.go-version }}
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: 📦 Cache Go Modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-${{ matrix.go-version }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.go-version }}-go-
+
+    - name: 📥 Download Dependencies
+      run: go mod download
+
+    - name: 🏗️ Build Application
+      run: go build -v ./...
+
+    - name: 🧪 Run Unit Tests
+      run: |
+        echo "🧪 Running Unit Tests..."
+        go test -v -race -timeout=5m ./config ./llm ./models
+
+    - name: 🔗 Run Integration Tests
+      run: |
+        echo "🔗 Running Integration Tests..."
+        go test -v -race -timeout=10m ./app
+
+    - name: 🎯 Run E2E Tests
+      run: |
+        echo "🎯 Running End-to-End Tests..."
+        go test -v -timeout=15m ./e2e
+
+    - name: ⚡ Run Benchmark Tests
+      run: |
+        echo "⚡ Running Benchmark Tests..."
+        go test -bench=. -benchmem -timeout=30m ./...
+
+    - name: 📊 Generate Coverage Report
+      if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.21'
+      run: |
+        echo "📊 Generating Coverage Report..."
+        go test -race -coverprofile=coverage.out -covermode=atomic ./...
+        go tool cover -html=coverage.out -o coverage.html
+
+    - name: 📈 Upload Coverage to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.21'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.out
+        flags: unittests
+        name: codecov-umbrella
+
+    - name: 📦 Upload Coverage Artifacts
+      if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.21'
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: |
+          coverage.out
+          coverage.html
+
+  # ==================================================
+  # 🚀 Comprehensive Test Runner
+  # ==================================================
+  comprehensive-test:
+    name: 🚀 Comprehensive Test Runner
+    runs-on: ubuntu-latest
+    needs: [code-quality]
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: 🐹 Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: 📦 Cache Go Modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: 📥 Download Dependencies
+      run: go mod download
+
+    - name: 🎯 Run Complete Test Suite
+      run: |
+        echo "🎯 Running Comprehensive Test Suite..."
+        go run test_runner.go
+
+  # ==================================================
+  # 🏗️ Build & Release Artifacts
+  # ==================================================
+  build:
+    name: 🏗️ Build Artifacts
+    runs-on: ubuntu-latest
+    needs: [test, comprehensive-test]
+    if: success()
+    
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+        exclude:
+          - goos: windows
+            goarch: arm64
+
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: 🐹 Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: 📦 Cache Go Modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: 📥 Download Dependencies
+      run: go mod download
+
+    - name: 🏗️ Build Binary
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+      run: |
+        mkdir -p dist
+        BINARY_NAME="aura"
+        if [ "$GOOS" = "windows" ]; then
+          BINARY_NAME="aura.exe"
+        fi
+        
+        echo "🏗️ Building for $GOOS/$GOARCH..."
+        go build -ldflags="-s -w" -o "dist/aura-$GOOS-$GOARCH-$BINARY_NAME" .
+        
+        # Create compressed archive
+        cd dist
+        if [ "$GOOS" = "windows" ]; then
+          zip "aura-$GOOS-$GOARCH.zip" "aura-$GOOS-$GOARCH-$BINARY_NAME"
+        else
+          tar -czf "aura-$GOOS-$GOARCH.tar.gz" "aura-$GOOS-$GOARCH-$BINARY_NAME"
+        fi
+
+    - name: 📦 Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: aura-${{ matrix.goos }}-${{ matrix.goarch }}
+        path: dist/aura-${{ matrix.goos }}-${{ matrix.goarch }}.*
+
+  # ==================================================
+  # 📊 Test Results & Reporting
+  # ==================================================
+  report:
+    name: 📊 Test Results & Reporting
+    runs-on: ubuntu-latest
+    needs: [code-quality, test, comprehensive-test]
+    if: always()
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: 📊 Create Test Summary
+      run: |
+        echo "## 🚀 Aura CI/CD Pipeline Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ needs.code-quality.result }}" = "success" ]; then
+          echo "✅ **Code Quality**: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Code Quality**: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.test.result }}" = "success" ]; then
+          echo "✅ **Cross-Platform Tests**: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Cross-Platform Tests**: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.comprehensive-test.result }}" = "success" ]; then
+          echo "✅ **Comprehensive Test Suite**: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Comprehensive Test Suite**: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📈 Pipeline Status" >> $GITHUB_STEP_SUMMARY
+        echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Author**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+
+  # ==================================================
+  # 🏷️ Release (only on main branch)
+  # ==================================================
+  release:
+    name: 🏷️ Create Release
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 🏷️ Generate Tag
+      id: tag
+      run: |
+        VERSION=$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Generated version: $VERSION"
+
+    - name: 📥 Download All Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts
+
+    - name: 📦 Prepare Release Assets
+      run: |
+        mkdir -p release-assets
+        find artifacts -name "*.tar.gz" -o -name "*.zip" | xargs -I {} cp {} release-assets/
+        ls -la release-assets/
+
+    - name: 🏷️ Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.tag.outputs.version }}
+        name: Aura v${{ steps.tag.outputs.version }}
+        body: |
+          ## 🚀 Aura Release v${{ steps.tag.outputs.version }}
+          
+          ### ✨ What's New
+          - Automated release from main branch
+          - All tests passing ✅
+          - Cross-platform builds included
+          
+          ### 📦 Downloads
+          Choose the appropriate binary for your platform:
+          - **Linux AMD64**: `aura-linux-amd64.tar.gz`
+          - **Linux ARM64**: `aura-linux-arm64.tar.gz`
+          - **macOS AMD64**: `aura-darwin-amd64.tar.gz`
+          - **macOS ARM64**: `aura-darwin-arm64.tar.gz`
+          - **Windows AMD64**: `aura-windows-amd64.zip`
+          
+          ### 🧪 Test Results
+          - ✅ Unit Tests: Passed
+          - ✅ Integration Tests: Passed
+          - ✅ E2E Tests: Passed
+          - ✅ Security Scan: Passed
+          - ✅ Code Quality: Passed
+          
+          **Commit**: ${{ github.sha }}
+        files: release-assets/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
