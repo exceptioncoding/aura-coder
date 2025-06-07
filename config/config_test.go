@@ -36,10 +36,10 @@ func TestGetConfigPath(t *testing.T) {
 
 func TestConfig_IsTrustedDir(t *testing.T) {
 	tests := []struct {
-		name        string
-		config      Config
-		testDir     string
-		expected    bool
+		name     string
+		config   Config
+		testDir  string
+		expected bool
 	}{
 		{
 			name: "directory is trusted",
@@ -184,11 +184,11 @@ func TestConfig_Validate(t *testing.T) {
 func TestConfig_SaveAndLoad_Integration(t *testing.T) {
 	// Use a temporary directory for this test
 	tempDir := t.TempDir()
-	
+
 	// Save original HOME
 	originalHome := os.Getenv("HOME")
 	defer func() { os.Setenv("HOME", originalHome) }()
-	
+
 	// Set HOME to temp directory
 	os.Setenv("HOME", tempDir)
 
@@ -227,11 +227,11 @@ func TestConfig_SaveAndLoad_Integration(t *testing.T) {
 func TestConfig_AddTrustedDir_Integration(t *testing.T) {
 	// Use a temporary directory for this test
 	tempDir := t.TempDir()
-	
+
 	// Save original HOME
 	originalHome := os.Getenv("HOME")
 	defer func() { os.Setenv("HOME", originalHome) }()
-	
+
 	// Set HOME to temp directory
 	os.Setenv("HOME", tempDir)
 

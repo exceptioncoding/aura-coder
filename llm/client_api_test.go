@@ -1,18 +1,18 @@
 package llm
 
 import (
-"bytes"
-"encoding/json"
-"fmt"
-"io"
-"net/http"
-"net/http/httptest"
-"testing"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 
-"github.com/stretchr/testify/assert"
-"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
-"aura/config"
+	"aura/config"
 )
 
 // Test actual API interactions with mocked HTTP servers
@@ -76,7 +76,7 @@ func TestClient_ChatOpenAI_Success(t *testing.T) {
 	}
 	client := NewClient(cfg)
 
-// We use a test-specific method that accepts a custom URL
+	// We use a test-specific method that accepts a custom URL
 	response, err := client.testChatOpenAI([]Message{
 		{Role: "user", Content: "Hello, AI!"},
 	}, server.URL+"/v1/chat/completions")
@@ -185,7 +185,7 @@ func TestClient_ChatAnthropic_NetworkError(t *testing.T) {
 
 func TestClient_ChatOpenAI_EmptyResponse(t *testing.T) {
 	// Create mock server that returns empty choices
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		response := ChatResponse{
 			ID:      "chatcmpl-123",
 			Object:  "chat.completion",
@@ -224,10 +224,10 @@ func TestClient_ChatOpenAI_EmptyResponse(t *testing.T) {
 
 func TestClient_Chat_Integration_WithMocking(t *testing.T) {
 	tests := []struct {
-		name           string
-		provider       string
-		expectedError  string
-		shouldSucceed  bool
+		name          string
+		provider      string
+		expectedError string
+		shouldSucceed bool
 	}{
 		{
 			name:          "unsupported provider",
